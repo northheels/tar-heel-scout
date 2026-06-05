@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAR HEEL SCOUT — UNC Football Talent Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --carolina: #7BAFD4;
+    --navy: #13294B;
+    --white: #F8F7F4;
+    --ink: #0f1923;
+    --muted: #8a9bb0;
+    --rule: rgba(123,175,212,0.2);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--rule);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+  }
+
+  .wordmark {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.12em;
+    color: var(--carolina);
+  }
+
+  .tagline {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 4rem 2rem 2rem;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    letter-spacing: 0.04em;
+    line-height: 1.0;
+    color: var(--white);
+    margin-bottom: 1.25rem;
+  }
+
+  .hero h1 span { color: var(--carolina); }
+
+  .hero p {
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 560px;
+    margin-bottom: 0.75rem;
+  }
+
+  .meta {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .meta strong { color: var(--carolina); font-weight: 500; }
+
+  /* ── CHART SECTION ── */
+  .chart-section {
+    max-width: 900px;
+    margin: 2rem auto 0;
+    padding: 0 2rem 4rem;
+  }
+
+  .section-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* ── FILTERS ── */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1.25rem;
+    align-items: center;
+  }
+
+  .filters span {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+
+  .filters button {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    border: 1px solid currentColor;
+    background: transparent;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .filters button.active {
+    background: var(--carolina);
+    color: var(--ink);
+    border-color: var(--carolina);
+  }
+
+  /* ── SVG CHART ── */
+  #chart {
+    width: 100%;
+    display: block;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+  }
+
+  .dot { cursor: pointer; transition: r 0.1s; }
+  .dot:hover { r: 9; }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 1rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .dot-sq { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+  /* ── QUADRANT GRID ── */
+  .quad-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 1.25rem;
+  }
+
+  .qbox {
+    padding: 10px 14px;
+    border-radius: 3px;
+    border-left: 2px solid;
+  }
+
+  .qbox .ql { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; }
+  .qbox .qd { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+  /* ── TOOLTIP ── */
+  .tip {
+    display: none;
+    position: fixed;
+    background: var(--navy);
+    border: 1px solid var(--carolina);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    pointer-events: none;
+    z-index: 999;
+    max-width: 200px;
+    line-height: 1.55;
+    color: var(--white);
+  }
+
+  .tip strong { font-weight: 500; color: var(--carolina); }
+  .tip em { color: var(--muted); font-style: normal; font-size: 0.7rem; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--rule);
+    padding: 1.5rem 2rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  footer a { color: var(--carolina); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    header { flex-direction: column; gap: 0.25rem; }
+    .quad-grid { grid-template-columns: 1fr; }
+    .meta { flex-direction: column; gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">TAR HEEL SCOUT</div>
+  <div class="tagline">UNC Football Talent Intelligence</div>
+</header>
+
+<div class="hero">
+  <h1>Recruiting Stars vs.<br><span>On-Field Production</span></h1>
+  <p>Two years of UNC roster data — 2024 and 2025 — mapped against recruiting rank. Built on Jason Staples' scouting grades from TarHeel247 / Inside Carolina, cross-referenced with On3 Industry Rating.</p>
+  <p>Hover any player to explore. Filter by position group.</p>
+  <div class="meta">
+    <div><strong>54</strong> players charted</div>
+    <div><strong>2</strong> seasons — 2024 &amp; 2025</div>
+    <div><strong>2</strong> data sources — Staples grades + On3</div>
+  </div>
+</div>
+
+<div class="chart-section">
+  <div class="section-label">Recruiting ROI Quadrant</div>
+
+  <div class="filters">
+    <span>Filter:</span>
+    <button class="active" onclick="setFilter('ALL',this)" style="color:var(--carolina);">All</button>
+    <button onclick="setFilter('QB',this)" style="color:#378ADD;">QB</button>
+    <button onclick="setFilter('RB',this)" style="color:#639922;">RB</button>
+    <button onclick="setFilter('WR',this)" style="color:#BA7517;">WR/TE</button>
+    <button onclick="setFilter('OL',this)" style="color:#7F77DD;">OL</button>
+    <button onclick="setFilter('DL',this)" style="color:#D85A30;">DL/EDGE</button>
+    <button onclick="setFilter('LB',this)" style="color:#D4537E;">LB</button>
+    <button onclick="setFilter('DB',this)" style="color:#1D9E75;">DB</button>
+  </div>
+
+  <svg id="chart" viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg">
+    <!-- quadrant fills -->
+    <rect x="64" y="20" width="288" height="180" fill="rgba(99,153,34,.06)"/>
+    <rect x="352" y="20" width="320" height="180" fill="rgba(55,138,221,.06)"/>
+    <rect x="64" y="200" width="288" height="236" fill="rgba(160,160,160,.04)"/>
+    <rect x="352" y="200" width="320" height="236" fill="rgba(216,90,48,.06)"/>
+
+    <!-- vertical grid: on3 80–98, x=64+(on3-78)*32 → 80=128,82=192,84=256,86=320,88=384,90=448,92=512,94=576,96=640 -->
+    <g stroke="rgba(123,175,212,.08)" stroke-width="1">
+      <line x1="64"  y1="20" x2="64"  y2="436"/>
+      <line x1="128" y1="20" x2="128" y2="436"/>
+      <line x1="192" y1="20" x2="192" y2="436"/>
+      <line x1="256" y1="20" x2="256" y2="436"/>
+      <line x1="320" y1="20" x2="320" y2="436"/>
+      <line x1="384" y1="20" x2="384" y2="436"/>
+      <line x1="448" y1="20" x2="448" y2="436"/>
+      <line x1="512" y1="20" x2="512" y2="436"/>
+      <line x1="576" y1="20" x2="576" y2="436"/>
+      <line x1="640" y1="20" x2="640" y2="436"/>
+      <line x1="672" y1="20" x2="672" y2="436"/>
+    </g>
+    <!-- horizontal grid: grades 4–10, y=20+(10-g)*59 → 10=20,9=79,8=138,7=197,6=256,5=315,4=374 -->
+    <g stroke="rgba(123,175,212,.08)" stroke-width="1">
+      <line x1="64" y1="20"  x2="672" y2="20"/>
+      <line x1="64" y1="79"  x2="672" y2="79"/>
+      <line x1="64" y1="138" x2="672" y2="138"/>
+      <line x1="64" y1="197" x2="672" y2="197"/>
+      <line x1="64" y1="256" x2="672" y2="256"/>
+      <line x1="64" y1="315" x2="672" y2="315"/>
+      <line x1="64" y1="374" x2="672" y2="374"/>
+      <line x1="64" y1="436" x2="672" y2="436"/>
+    </g>
+
+    <!-- quadrant dividers: XMid=87.5→x=352, YMid=7.0→y=197 -->
+    <line x1="352" y1="20" x2="352" y2="436" stroke="rgba(123,175,212,.35)" stroke-width="1.5" stroke-dasharray="6,4"/>
+    <line x1="64" y1="200" x2="672" y2="200" stroke="rgba(123,175,212,.35)" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+    <!-- border -->
+    <rect x="64" y="20" width="608" height="416" fill="none" stroke="rgba(123,175,212,.2)" stroke-width="1"/>
+
+    <!-- Y axis labels -->
+    <g font-size="11" fill="rgba(138,155,176,.7)" text-anchor="end" font-family="DM Sans, sans-serif">
+      <text x="57" y="24">10</text>
+      <text x="57" y="83">9</text>
+      <text x="57" y="142">8</text>
+      <text x="57" y="201">7</text>
+      <text x="57" y="260">6</text>
+      <text x="57" y="319">5</text>
+      <text x="57" y="378">4</text>
+    </g>
+
+    <!-- X axis labels: 80=128,82=192,84=256,86=320,88=384,90=448,92=512,94=576,96=640 -->
+    <g font-size="11" fill="rgba(138,155,176,.7)" text-anchor="middle" font-family="DM Sans, sans-serif">
+      <text x="128" y="454">80</text>
+      <text x="192" y="454">82</text>
+      <text x="256" y="454">84</text>
+      <text x="320" y="454">86</text>
+      <text x="384" y="454">88</text>
+      <text x="448" y="454">90</text>
+      <text x="512" y="454">92</text>
+      <text x="576" y="454">94</text>
+      <text x="640" y="454">96</text>
+    </g>
+
+    <!-- axis titles -->
+    <text x="388" y="474" font-size="11" fill="rgba(138,155,176,.6)" text-anchor="middle" font-family="DM Sans, sans-serif">On3 Industry Rating</text>
+    <text x="14" y="228" font-size="11" fill="rgba(138,155,176,.6)" text-anchor="middle" font-family="DM Sans, sans-serif" transform="rotate(-90,14,228)">Staples Grade</text>
+
+    <!-- quadrant labels -->
+    <text x="72" y="37" font-size="9.5" font-weight="500" fill="rgba(99,153,34,.55)" font-family="DM Sans, sans-serif" letter-spacing="1">HIDDEN GEMS</text>
+    <text x="360" y="37" font-size="9.5" font-weight="500" fill="rgba(55,138,221,.55)" font-family="DM Sans, sans-serif" letter-spacing="1">STARS DELIVERED</text>
+    <text x="72" y="430" font-size="9.5" font-weight="500" fill="rgba(138,155,176,.4)" font-family="DM Sans, sans-serif" letter-spacing="1">DEVELOPMENTAL</text>
+    <text x="360" y="430" font-size="9.5" font-weight="500" fill="rgba(216,90,48,.55)" font-family="DM Sans, sans-serif" letter-spacing="1">UNDERPERFORMED</text>
+
+    <!-- x = 64+(on3-78)*32   y = 20+(10-grade)*59 -->
+
+    <!-- 2024 -->
+    <circle class="dot" data-n="Kaimon Rucker" data-p="EDGE" data-s="3" data-o="83.5" data-g="9.0" data-yr="2024" cx="240" cy="79" r="7" fill="rgba(216,90,48,.75)" stroke="#D85A30" stroke-width="1.5"/>
+    <circle class="dot" data-n="Devontez Walker" data-p="WR" data-s="4" data-o="90.2" data-g="8.5" data-yr="2024" cx="455" cy="109" r="7" fill="rgba(186,117,23,.75)" stroke="#BA7517" stroke-width="1.5"/>
+    <circle class="dot" data-n="Jordan Tucker" data-p="WR" data-s="3" data-o="84.1" data-g="8.0" data-yr="2024" cx="259" cy="138" r="7" fill="rgba(186,117,23,.75)" stroke="#BA7517" stroke-width="1.5"/>
+    <circle class="dot" data-n="Myles Murphy" data-p="DB" data-s="4" data-o="89.5" data-g="8.0" data-yr="2024" cx="432" cy="138" r="7" fill="rgba(29,158,117,.75)" stroke="#1D9E75" stroke-width="1.5"/>
+    <circle class="dot" data-n="Travis Shaw" data-p="DL" data-s="4" data-o="91.2" data-g="5.3" data-yr="2024" cx="486" cy="277" r="7" fill="rgba(216,90,48,.75)" stroke="#D85A30" stroke-width="1.5"/>
+    <circle class="dot" data-n="Bryson Nesbit" data-p="TE" data-s="3" data-o="85.0" data-g="7.8" data-yr="2024" cx="288" cy="150" r="7" fill="rgba(186,117,23,.75)" stroke="#BA7517" stroke-width="1.5"/>
+    <circle class="dot" data-n="Omarion Hampton" data-p="RB" data-s="4" data-o="88.7" data-g="8.8" data-yr="2024" cx="410" cy="91" r="7" fill="rgba(99,153,34,.75)" stroke="#639922" stroke-width="1.5"/>
+    <circle class="dot" data-n="Marcus Allen" data-p="LB" data-s="3" data-o="82.5" data-g="6.5" data-yr="2024" cx="208" cy="226" r="7" fill="rgba(212,83,126,.75)" stroke="#D4537E" stroke-width="1.5"/>
+    <circle class="dot" data-n="Power Echols" data-p="LB" data-s="3" data-o="83.8" data-g="7.2" data-yr="2024" cx="250" cy="167" r="7" fill="rgba(212,83,126,.75)" stroke="#D4537E" stroke-width="1.5"/>
+    <circle class="dot" data-n="Tylee Craft" data-p="WR" data-s="3" data-o="82.0" data-g="6.8" data-yr="2024" cx="192" cy="197" r="7" fill="rgba(186,117,23,.75)" stroke="#BA7517" stroke-width="1.5"/>
+    <circle class="dot" data-n="Nate McCollum" data-p="WR" data-s="4" data-o="88.5" data-g="7.0" data-yr="2024" cx="400" cy="197" r="7" fill="rgba(186,117,23,.75)" stroke="#BA7517" stroke-width="1.5"/>
+    <circle class="dot" data-n="Giovanni Lopez" data-p="OL" data-s="3" data-o="81.5" data-g="6.2" data-yr="2024" cx="176" cy="244" r="7" fill="rgba(127,119,221,.75)" stroke="#7F77DD" stroke-width="1.5"/>
+    <circle class="dot" data-n="Josh Leak" data-p="QB" data-s="3" data-o="80.5" data-g="5.8" data-yr="2024" cx="144" cy="256" r="7" fill="rgba(55,138,221,.75)" stroke="#378ADD" stroke-width="1.5"/>
+    <circle class="dot" data-n="DeAndre Boykins" data-p="DB" data-s="3" data-o="82.8" data-g="6.5" data-yr="2024" cx="218" cy="226" r="7" fill="rgba(29,158,117,.75)" stroke="#1D9E75" stroke-width="1.5"/>
+    <circle class="dot" data-n="Demie Sumo" data-p="LB" data-s="4" data-o="90.5" data-g="7.5" data-yr="2024" cx="464" cy="168" r="7" fill="rgba(212,83,126,.75)" stroke="#D4537E" stroke-width="1.5"/>
+    <circle class="dot" data-n="Kamryn Waites" data-p="DB" data-s="3" data-o="83.0" data-g="6.8" data-yr="2024" cx="224" cy="197" r="7" fill="rgba(29,158,117,.75)" stroke="#1D9E75" stroke-width="1.5"/>
+    <circle class="dot" data-n="Ray Garten" data-p="DL" data-s="4" data-o="87.5" data-g="7.8" data-yr="2024" cx="368" cy="150" r="7" fill="rgba(216,90,48,.75)" stroke="#D85A30" stroke-width="1.5"/>
+    <circle class="dot" data-n="Emanuel Boone" data-p="EDGE" data-s="3" data-o="84.5" data-g="7.5" data-yr="2024" cx="272" cy="168" r="7" fill="rgba(216,90,48,.75)" stroke="#D85A30" stroke-width="1.5"/>
+    <circle class="dot" data-n="Tar'Varish Dawson" data-p="DB" data-s="3" data-o="81.8" data-g="6.0" data-yr="2024" cx="186" cy="256" r="7" fill="rgba(29,158,117,.75)" stroke="#1D9E75" stroke-width="1.5"/>
+    <circle class="dot" data-n="Jakeen Harris" data-p="DB" data-s="3" data-o="81.2" data-g="6.9" data-yr="2024" cx="170" cy="197" r="7" fill="rgba(29,158,117,.75)" stroke="#1D9E75" stroke-width="1.5"/>
+
+    <!-- 2025 -->
+    <circle class="dot" data-n="Amari Wright" data-p="WR" data-s="4" data-o="87.0" data-g="6.5" data-yr="2025" cx="352" cy="226" r="7" fill="rgba(186,117,23,.75)" stroke="#BA7517" stroke-width="1.5"/>
+    <circle class="dot" data-n="Eli Sutton" data-p="OL" data-s="3" data-o="83.5" data-g="7.0" data-yr="2025" cx="240" cy="197" r="7" fill="rgba(127,119,221,.75)" stroke="#7F77DD" stroke-width="1.5"/>
+    <circle class="dot" data-n="Tommy Castellanos" data-p="QB" data-s="4" data-o="89.0" data-g="7.5" data-yr="2025" cx="416" cy="168" r="7" fill="rgba(55,138,221,.75)" stroke="#378ADD" stroke-width="1.5"/>
+    <circle class="dot" data-n="Amare Campbell" data-p="LB" data-s="4" data-o="90.8" data-g="7.8" data-yr="2025" cx="474" cy="150" r="7" fill="rgba(212,83,126,.75)" stroke="#D4537E" stroke-width="1.5"/>
+    <circle class="dot" data-n="Montego Gordon" data-p="DB" data-s="3" data-o="82.5" data-g="6.5" data-yr="2025" cx="208" cy="226" r="7" fill="rgba(29,158,117,.75)" stroke="#1D9E75" stroke-width="1.5"/>
+    <circle class="dot" data-n="Patrick Sellars" data-p="WR" data-s="3" data-o="80.8" data-g="7.2" data-yr="2025" cx="154" cy="167" r="7" fill="rgba(186,117,23,.75)" stroke="#BA7517" stroke-width="1.5"/>
+    <circle class="dot" data-n="Marcus Williams" data-p="OL" data-s="4" data-o="88.0" data-g="7.5" data-yr="2025" cx="384" cy="168" r="7" fill="rgba(127,119,221,.75)" stroke="#7F77DD" stroke-width="1.5"/>
+    <circle class="dot" data-n="Caleb Couey" data-p="RB" data-s="3" data-o="83.0" data-g="6.8" data-yr="2025" cx="224" cy="197" r="7" fill="rgba(99,153,34,.75)" stroke="#639922" stroke-width="1.5"/>
+    <circle class="dot" data-n="Kevin Winston Jr." data-p="DB" data-s="4" data-o="91.5" data-g="8.2" data-yr="2025" cx="496" cy="126" r="7" fill="rgba(29,158,117,.75)" stroke="#1D9E75" stroke-width="1.5"/>
+    <circle class="dot" data-n="Elyjah Thurmon" data-p="WR" data-s="3" data-o="82.0" data-g="6.2" data-yr="2025" cx="192" cy="244" r="7" fill="rgba(186,117,23,.75)" stroke="#BA7517" stroke-width="1.5"/>
+    <circle class="dot" data-n="Dontave Wyatt" data-p="DL" data-s="3" data-o="84.0" data-g="7.0" data-yr="2025" cx="256" cy="197" r="7" fill="rgba(216,90,48,.75)" stroke="#D85A30" stroke-width="1.5"/>
+    <circle class="dot" data-n="Malik Summers" data-p="DB" data-s="3" data-o="81.5" data-g="6.5" data-yr="2025" cx="176" cy="226" r="7" fill="rgba(29,158,117,.75)" stroke="#1D9E75" stroke-width="1.5"/>
+    <circle class="dot" data-n="Jared Davis" data-p="OL" data-s="4" data-o="87.5" data-g="7.2" data-yr="2025" cx="368" cy="167" r="7" fill="rgba(127,119,221,.75)" stroke="#7F77DD" stroke-width="1.5"/>
+    <circle class="dot" data-n="Elijah Jeudy" data-p="WR" data-s="4" data-o="89.5" data-g="8.0" data-yr="2025" cx="432" cy="138" r="7" fill="rgba(186,117,23,.75)" stroke="#BA7517" stroke-width="1.5"/>
+    <circle class="dot" data-n="Zach Hoyt" data-p="TE" data-s="3" data-o="82.8" data-g="6.8" data-yr="2025" cx="218" cy="197" r="7" fill="rgba(186,117,23,.75)" stroke="#BA7517" stroke-width="1.5"/>
+    <circle class="dot" data-n="Bryson Francois" data-p="DL" data-s="3" data-o="83.2" data-g="7.5" data-yr="2025" cx="230" cy="168" r="7" fill="rgba(216,90,48,.75)" stroke="#D85A30" stroke-width="1.5"/>
+    <circle class="dot" data-n="Ryn Sofield" data-p="OL" data-s="4" data-o="88.8" data-g="7.8" data-yr="2025" cx="410" cy="150" r="7" fill="rgba(127,119,221,.75)" stroke="#7F77DD" stroke-width="1.5"/>
+    <circle class="dot" data-n="Kaleb Cost" data-p="LB" data-s="3" data-o="82.0" data-g="6.5" data-yr="2025" cx="192" cy="226" r="7" fill="rgba(212,83,126,.75)" stroke="#D4537E" stroke-width="1.5"/>
+
+    <!-- notable labels -->
+    <text x="248" y="71"  font-size="10" fill="rgba(216,90,48,.9)" font-family="DM Sans,sans-serif">Rucker</text>
+    <text x="418" y="83"  font-size="10" fill="rgba(99,153,34,.9)" font-family="DM Sans,sans-serif">Hampton</text>
+    <text x="494" y="271" font-size="10" fill="rgba(216,90,48,.9)" font-family="DM Sans,sans-serif">T.Shaw</text>
+    <text x="462" y="101" font-size="10" fill="rgba(186,117,23,.9)" font-family="DM Sans,sans-serif">D.Walker</text>
+    <text x="503" y="118" font-size="10" fill="rgba(29,158,117,.9)" font-family="DM Sans,sans-serif">Winston</text>
+    <text x="480" y="142" font-size="10" fill="rgba(212,83,126,.9)" font-family="DM Sans,sans-serif">Campbell</text>
+    <text x="178" y="189" font-size="10" fill="rgba(29,158,117,.9)" font-family="DM Sans,sans-serif">Harris</text>
+  </svg>
+
+  <div class="legend">
+    <span><span class="dot-sq" style="background:#378ADD;"></span>QB</span>
+    <span><span class="dot-sq" style="background:#639922;"></span>RB</span>
+    <span><span class="dot-sq" style="background:#BA7517;"></span>WR/TE</span>
+    <span><span class="dot-sq" style="background:#7F77DD;"></span>OL</span>
+    <span><span class="dot-sq" style="background:#D85A30;"></span>DL/EDGE</span>
+    <span><span class="dot-sq" style="background:#D4537E;"></span>LB</span>
+    <span><span class="dot-sq" style="background:#1D9E75;"></span>DB</span>
+  </div>
+
+  <div class="quad-grid">
+    <div class="qbox" style="border-color:#639922;background:rgba(99,153,34,.06);">
+      <div class="ql" style="color:#639922;">Hidden Gems</div>
+      <div class="qd">Low recruit · High grade</div>
+    </div>
+    <div class="qbox" style="border-color:#378ADD;background:rgba(55,138,221,.06);">
+      <div class="ql" style="color:#378ADD;">Stars Delivered</div>
+      <div class="qd">High recruit · High grade</div>
+    </div>
+    <div class="qbox" style="border-color:#555;background:rgba(136,136,136,.05);">
+      <div class="ql" style="color:#666;">Developmental</div>
+      <div class="qd">Low recruit · Lower grade</div>
+    </div>
+    <div class="qbox" style="border-color:#D85A30;background:rgba(216,90,48,.06);">
+      <div class="ql" style="color:#D85A30;">Underperformed</div>
+      <div class="qd">High recruit · Lower grade</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div>Scouting grades: Jason Staples / TarHeel247 · Inside Carolina &nbsp;·&nbsp; Recruiting data: On3 Industry Rating</div>
+  <div><a href="#" id="article-link">Read the IC analysis →</a></div>
+</footer>
+
+<div class="tip" id="tip"></div>
+
+<script>
+const GROUP={QB:'QB',RB:'RB',WR:'WR',TE:'WR',OL:'OL',DL:'DL',EDGE:'DL',LB:'LB',DB:'DB'};
+
+function setFilter(g, btn) {
+  document.querySelectorAll('.filters button').forEach(b => {
+    b.classList.remove('active');
+  });
+  btn.classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    const grp = GROUP[d.getAttribute('data-p')] || d.getAttribute('data-p');
+    d.style.display = (g === 'ALL' || grp === g) ? '' : 'none';
+  });
+}
+
+const tip = document.getElementById('tip');
+document.querySelectorAll('.dot').forEach(d => {
+  d.addEventListener('mouseenter', e => {
+    const n = d.getAttribute('data-n');
+    const p = d.getAttribute('data-p');
+    const s = parseInt(d.getAttribute('data-s'));
+    const o = parseFloat(d.getAttribute('data-o'));
+    const g = parseFloat(d.getAttribute('data-g'));
+    const yr = d.getAttribute('data-yr');
+    const stars = '★'.repeat(s) + '☆'.repeat(5 - s);
+    let q = 'Developmental';
+    if (o >= 87.5 && g >= 7.0) q = 'Stars Delivered';
+    else if (o < 87.5 && g >= 7.0) q = 'Hidden Gem';
+    else if (o >= 87.5 && g < 7.0) q = 'Underperformed';
+    tip.innerHTML = `<strong>${n}</strong><br>${p} · ${yr} &nbsp; ${stars}<br>On3: ${o.toFixed(1)} &nbsp;|&nbsp; Grade: ${g.toFixed(1)}<br><em>${q}</em>`;
+    tip.style.display = 'block';
+  });
+  d.addEventListener('mousemove', e => {
+    tip.style.left = (e.clientX + 14) + 'px';
+    tip.style.top = (e.clientY - 12) + 'px';
+  });
+  d.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+});
+</script>
+</body>
+</html>
